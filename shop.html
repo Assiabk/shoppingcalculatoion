@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Shopping.assia</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+
+body{
+  min-height:100vh;
+  font-family:'DM Sans',sans-serif;
+  background:#0d0508;
+  color:#f5eaf0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:2rem 1rem;
+  overflow-x:hidden;
+}
+
+/* ── Floating icons ── */
+.floaties{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  overflow:hidden;
+}
+.fi{
+  position:absolute;
+  font-size:1.4rem;
+  opacity:0;
+  animation:floatUp var(--dur) var(--delay) ease-in-out infinite;
+  user-select:none;
+}
+@keyframes floatUp{
+  0%  {opacity:0;   transform:translateY(0)   rotate(var(--r0)) scale(.85);}
+  15% {opacity:.15;}
+  50% {opacity:.2;  transform:translateY(-38vh) rotate(var(--r1)) scale(1.05);}
+  85% {opacity:.1;}
+  100%{opacity:0;   transform:translateY(-76vh) rotate(var(--r2)) scale(.88);}
+}
+
+/* ── Ambient light ── */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 10%, rgba(180,60,110,0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 50% at 85% 80%, rgba(130,50,160,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(200,80,130,0.06) 0%, transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.wrap{
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:460px;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+/* ── Brand area ── */
+.brand{
+  text-align:center;
+  padding:0 0 3.5rem;
+}
+
+.wordmark{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-style:italic;
+  font-size:clamp(2.6rem,10vw,4rem);
+  letter-spacing:.04em;
+  color:#f5eaf0;
+  line-height:1;
+}
+
+.wordmark span{
+  color:#d4637a;
+}
+
+.tagline{
+  margin-top:.6rem;
+  font-size:.72rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:rgba(245,234,240,0.38);
+  font-weight:400;
+}
+
+/* ── Divider line ── */
+.rule{
+  width:100%;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(212,99,122,0.5) 30%,rgba(212,99,122,0.5) 70%,transparent);
+  margin-bottom:3rem;
+}
+
+/* ── Input section ── */
+.input-section{
+  margin-bottom:1.4rem;
+}
+
+.input-shell{
+  position:relative;
+  display:flex;
+  align-items:center;
+}
+
+.currency-badge{
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:52px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:1.5rem;
+  color:#d4637a;
+  pointer-events:none;
+  border-right:1px solid rgba(212,99,122,0.2);
+}
+
+input[type=number]{
+  width:100%;
+  padding:1.1rem 1.2rem 1.1rem 64px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(212,99,122,0.25);
+  border-radius:4px;
+  color:#f5eaf0;
+  font-family:'DM Sans',sans-serif;
+  font-size:1.1rem;
+  font-weight:300;
+  outline:none;
+  transition:border-color .3s, background .3s;
+  -moz-appearance:textfield;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+input[type=number]::placeholder{color:rgba(245,234,240,0.22)}
+input[type=number]:focus{
+  border-color:rgba(212,99,122,0.7);
+  background:rgba(212,99,122,0.05);
+}
+input[type=number].err{border-color:rgba(220,100,80,0.7)}
+
+.err-line{
+  height:1.2rem;
+  margin-top:.4rem;
+  padding-left:64px;
+  font-size:.72rem;
+  color:rgba(220,120,100,0.85);
+  opacity:0;
+  transition:opacity .2s;
+}
+.err-line.show{opacity:1}
+
+/* ── Button ── */
+.btn{
+  width:100%;
+  padding:1.05rem;
+  margin-top:.6rem;
+  background:transparent;
+  border:1px solid rgba(212,99,122,0.5);
+  border-radius:4px;
+  color:#f5eaf0;
+  font-family:'DM Sans',sans-serif;
+  font-size:.8rem;
+  font-weight:500;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  transition:border-color .3s, color .3s;
+}
+
+.btn::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(212,99,122,0.15), rgba(160,60,160,0.12));
+  opacity:0;
+  transition:opacity .3s;
+}
+.btn:hover{border-color:rgba(212,99,122,0.9)}
+.btn:hover::before{opacity:1}
+.btn:active{transform:scale(.99)}
+
+/* ── Result ── */
+.result{
+  margin-top:2.8rem;
+  text-align:center;
+  overflow:hidden;
+  max-height:0;
+  opacity:0;
+  transition:max-height .6s cubic-bezier(.16,1,.3,1), opacity .5s ease;
+}
+.result.open{
+  max-height:200px;
+  opacity:1;
+}
+
+.result-label{
+  font-size:.68rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:rgba(245,234,240,0.35);
+  margin-bottom:.8rem;
+}
+
+.result-num{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(3rem,12vw,5rem);
+  line-height:1;
+  color:#f5eaf0;
+  letter-spacing:-.01em;
+}
+
+.result-num .dzd{
+  font-size:.38em;
+  font-style:italic;
+  color:#d4637a;
+  letter-spacing:.06em;
+  margin-left:.15em;
+  vertical-align:.12em;
+}
+
+.result-meta{
+  margin-top:.9rem;
+  font-size:.75rem;
+  color:rgba(245,234,240,0.32);
+  letter-spacing:.04em;
+}
+
+.result-meta strong{
+  color:rgba(212,99,122,0.75);
+  font-weight:400;
+}
+
+/* ── Footer ── */
+.foot{
+  margin-top:3.5rem;
+  text-align:center;
+  font-size:.65rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:rgba(245,234,240,0.15);
+}
+
+@media(max-width:400px){
+  .wordmark{font-size:2.4rem}
+  .result-num{font-size:3.2rem}
+}
+</style>
+</head>
+<body>
+
+<div class="floaties" id="floaties"></div>
+
+<div class="wrap">
+
+  <header class="brand">
+    <div class="wordmark">Shopping<span>.</span>Assia</div>
+    <div class="tagline">Import price calculator</div>
+  </header>
+
+  <div class="rule"></div>
+
+  <div class="input-section">
+    <div class="input-shell">
+      <div class="currency-badge">€</div>
+      <input type="number" id="inp" placeholder="Price in euros" min="0" step="any" inputmode="decimal" autocomplete="off"/>
+    </div>
+    <div class="err-line" id="err">Enter a valid price greater than 0</div>
+  </div>
+
+  <button class="btn" id="btn">Calculate</button>
+
+  <div class="result" id="result" aria-live="polite">
+    <div class="result-label">Final price</div>
+    <div class="result-num" id="rnum">—<span class="dzd">DZD</span></div>
+  </div>
+
+</div>
+
+<script>
+const icons=['💄','👜','💅','👛','💍','🪞','💎','🌸','🫦','👠','🪷','💋','🧴','💫','🛍️','🌷','🩷','✨'];
+const floaties=document.getElementById('floaties');
+icons.forEach((ic,i)=>{
+  const el=document.createElement('span');
+  el.className='fi';
+  el.textContent=ic;
+  const col=Math.random()*96;
+  const dur=9+Math.random()*10;
+  const delay=-(Math.random()*dur);
+  const r0=(Math.random()-0.5)*20+'deg';
+  const r1=(Math.random()-0.5)*35+'deg';
+  const r2=(Math.random()-0.5)*50+'deg';
+  el.style.cssText=`left:${col}%;bottom:-6%;--dur:${dur}s;--delay:${delay}s;--r0:${r0};--r1:${r1};--r2:${r2};font-size:${1+Math.random()*.8}rem;`;
+  floaties.appendChild(el);
+});
+
+
+const btn=document.getElementById('btn');
+const err=document.getElementById('err');
+const result=document.getElementById('result');
+const rnum=document.getElementById('rnum');
+const rmeta=document.getElementById('rmeta');
+
+function profit(cost){
+  if(cost<2000) return 150;
+  if(cost<5000) return 300;
+  if(cost<10000) return 500;
+  return 1000;
+}
+
+function fmt(n){
+  return Math.round(n).toLocaleString('fr-DZ');
+}
+
+function calc(){
+  const v=parseFloat(inp.value);
+  if(!inp.value.trim()||isNaN(v)||v<=0){
+    inp.classList.add('err');
+    err.classList.add('show');
+    result.classList.remove('open');
+    inp.animate([{transform:'translateX(0)'},{transform:'translateX(-5px)'},{transform:'translateX(5px)'},{transform:'translateX(-3px)'},{transform:'translateX(0)'}],{duration:280});
+    return;
+  }
+  inp.classList.remove('err');
+  err.classList.remove('show');
+
+  const cost=v*290;
+  const p=profit(cost);
+  const final=cost+p;
+
+  result.classList.remove('open');
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      rnum.innerHTML=fmt(final)+'<span class="dzd">DZD</span>';
+      result.classList.add('open');
+    });
+  });
+}
+
+btn.addEventListener('click',calc);
+inp.addEventListener('keydown',e=>{ if(e.key==='Enter') calc(); });
+inp.addEventListener('input',()=>{ inp.classList.remove('err'); err.classList.remove('show'); });
+</script>
+</body>
+</html>
